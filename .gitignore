@@ -5,4 +5,5 @@
 *.rej
 # object files
 cbmbasic
+measure
 *.o

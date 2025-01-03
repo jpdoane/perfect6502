@@ -50,7 +50,7 @@ writeDataBus(void *state, uint8_t d)
 	writeNodes(state, 8, (nodenum_t[]){ db0, db1, db2, db3, db4, db5, db6, db7 }, d);
 }
 
-BOOL
+unsigned int
 readRW(void *state)
 {
 	return isNodeHigh(state, rw);
@@ -77,13 +77,36 @@ readY(void *state)
 uint8_t
 readP(void *state)
 {
-	return readNodes(state, 8, (nodenum_t[]){ p0,p1,p2,p3,p4,p5,p6,p7 });
+	uint8_t p = readNodes(state, 8, (nodenum_t[]){ p0,p1,p2,p3,p4,p5,p6,p7 });
+
+	// uncomment to match how visual6502 reports (fake) break & missing status
+	// return (p & 0xEF ) | 0x20; 
+
+	return p;
 }
 
 uint8_t
 readIR(void *state)
 {
 	return readNodes(state, 8, (nodenum_t[]){ notir0,notir1,notir2,notir3,notir4,notir5,notir6,notir7 }) ^ 0xFF;
+}
+
+uint8_t
+readTstate(void *state)
+{
+	return readNodes(state, 6, (nodenum_t[]){ t5,t4,t3,t2,clock2,clock1 });
+}
+
+uint8_t
+readALU(void *state)
+{
+	return readNodes(state, 8, (nodenum_t[]){ alu0,alu1,alu2,alu3,alu4,alu5,alu6,alu7 }) ^ 0xFF;
+}
+
+uint8_t
+readSB(void *state)
+{
+	return readNodes(state, 8, (nodenum_t[]){ sb0,sb1,sb2,sb3,sb4,sb5,sb6,sb7 });
 }
 
 uint8_t
@@ -109,6 +132,16 @@ readPC(void *state)
 {
 	return (readPCH(state) << 8) | readPCL(state);
 }
+
+unsigned int readclkm1(void *state)  { 	return isNodeHigh(state, clkm1); }
+unsigned int readclkm2(void *state)  { 	return isNodeHigh(state, clkm2); }
+unsigned int readSYNC(void *state)  { 	return isNodeHigh(state, sync_); }
+
+void setNRES(void *state, unsigned int nres) { setNode(state, res, nres); }
+void setRDY(void *state, unsigned int ready) { setNode(state, rdy, ready); }
+void setIRQ(void *state, unsigned int nirq) { setNode(state, irq, nirq); }
+void setNMI(void *state, unsigned int nnmi) { setNode(state, nmi, nnmi); }
+void setNSO(void *state, unsigned int nso) { setNode(state, so, nso); }
 
 /************************************************************
  *
@@ -159,6 +192,9 @@ step(void *state)
 	/* handle memory reads and writes */
 	if (!clk)
 		handleMemory(state);
+
+	// uncomment to match visual6502 zero latency memory behavior
+	// recalcNodeList(state); 
 
 	cycle++;
 }

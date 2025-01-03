@@ -1,6 +1,6 @@
 OBJS=perfect6502.o netlist_sim.o
 OBJS+=measure.o
-CFLAGS=-Werror -Wall -O3
+CFLAGS=-Wall -O3
 CC=cc
 
 all: measure

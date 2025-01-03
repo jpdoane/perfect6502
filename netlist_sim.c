@@ -385,8 +385,8 @@ getGroupValue(state_t *state)
 		case contains_vss:
 		case contains_pulldown:
 		case contains_nothing:
-			return NO;
 	}
+	return NO;
 }
 
 static inline void
@@ -712,3 +712,16 @@ writeNodes(state_t *state, int count, nodenum_t *nodelist, int v)
 	for (int i = 0; i < 8; i++, v >>= 1)
 	setNode(state, nodelist[i], v & 1);
 }
+
+void disable_decimal(state_t *state)
+{
+	//https://web.archive.org/web/20180817062555/http://visual6502.org/wiki/index.php?title=6502DecimalMode#Decimal_mode_and_the_NES.27_RP2A03G
+	//short out these 5 nodes
+	setNode(state, 1179, 0);
+	setNode(state, 306, 0);
+	setNode(state, 333, 0);
+	setNode(state, 700, 0);
+	setNode(state, 1372, 0);
+	recalcNodeList(state);
+}
+
